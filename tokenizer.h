@@ -1,9 +1,15 @@
 #ifndef TOKENIZER_H_
 #define TOKENIZER_H_
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "vocab.h"
+
 typedef struct {
     char *start;
     int length;
+    int id;
 } Token;
 
 typedef struct {
@@ -12,9 +18,9 @@ typedef struct {
 } TokenList;
 
 // Split phrases in words
-TokenList tokenize(char*);
+TokenList* tokenize(HashTable*, char*);
 
-void print_tokens(char*);
+void print_tokens(TokenList*);
 void free_tokens(TokenList*);
 
 
