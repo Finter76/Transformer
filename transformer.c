@@ -1,6 +1,7 @@
 #include "tokenizer.h"
 #include "embedding.h"
 #include "vocab.h"
+#include "algebra.h"
 #include <stdio.h>
 #include <stdlib.h>
 
