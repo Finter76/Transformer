@@ -1,4 +1,5 @@
 #include "algebra.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -312,6 +313,32 @@ int vec_sum(const Vector *a, float *result){
     *result = 0.0f;
     for(int i = 0; i < a->size; i++){
         *result += a->data[i];
+    }
+
+    return 0;
+}
+
+Vector *mat_get_row(Matrix* m, int index){
+    if(!m || !m->data) return NULL;
+    if(index < 0 || index >= m->rows) return NULL;
+
+    Vector *v = vec_init(m->cols);
+    if(!v) return NULL;
+
+    for(int i = 0; i < m->cols; i++){
+        v->data[i] = m->data[index * m->cols + i];
+    } 
+
+    return v;
+}
+
+int mat_set_row(Matrix *m, int index, const Vector *v){
+    if(!m || !m->data || !v || !v->data) return -1;
+    if(index < 0 || index >= m->rows) return -2;
+    if (v->size != m->cols) return -3;
+
+    for(int i = 0; i < m->cols; i++){
+        m->data[index * m->cols + i] = v->data[i];
     }
 
     return 0;

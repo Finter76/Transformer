@@ -71,7 +71,7 @@ void print_tokens(TokenList *tl){
             printf("%c", tl->tokens[i].start[j]);
         }
         printf(" length:%d", tl->tokens[i].length);
-        printf(" token id:%d", tl->tokens[i].id);
+        printf(" token-id:%d", tl->tokens[i].id);
         printf("\n");
     }
 }

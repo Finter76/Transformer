@@ -47,6 +47,9 @@ Matrix* mat_transpose(const Matrix*);
 int vec_norm(const Vector*, float*);
 int vec_sum(const Vector*, float*);
 
+Vector *mat_get_row(Matrix*, int);
+int mat_set_row(Matrix*, int, const Vector*);
+
 void print_vec(const Vector*);
 void print_mat(const Matrix*);
 #endif

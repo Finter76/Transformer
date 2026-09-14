@@ -1,10 +1,9 @@
 #ifndef VOCAB_H_
 #define VOCAB_H_
 
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
-
-#define HASH_TABLE_SIZE 2048
 
 typedef struct{
     char *word;

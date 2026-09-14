@@ -1,20 +1,24 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11
+
+CFLAGS = -Wall -Wextra -std=c11 -Iinclude
 LDFLAGS = -lm
 
 TARGET = build/token
 
-SRC = transformer.c tokenizer.c vocab.c embedding.c algebra.c
-OBJ = $(SRC:.c=.o)
+SRC = $(wildcard src/*.c)
+OBJ = $(SRC:src/%.c=build/%.o)
+DEP = $(OBJ:.o=.d)
 
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $(TARGET) $(LDFLAGS)
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+build/%.o: src/%.c
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
+
+-include $(DEP)
 
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJ) $(DEP) $(TARGET)
 
 run: $(TARGET)
 	./$(TARGET)
