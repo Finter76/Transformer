@@ -15,5 +15,6 @@
 
 #define HASH_TABLE_SIZE 2048
 
+#define EPSILON 1e-5
 
 #endif

@@ -22,6 +22,11 @@ typedef struct {
     Matrix *W4q;
     Matrix *W4k;
     Matrix *W4v;
+
+    Matrix *Wo;
+
+    Vector *gamma;
+    Vector *beta;
 } Transformer;
 
 Transformer *transformer_init();

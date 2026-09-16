@@ -318,7 +318,7 @@ int vec_sum(const Vector *a, float *result){
     return 0;
 }
 
-Vector *mat_get_row(Matrix* m, int index){
+Vector *mat_get_row(const Matrix* m, int index){
     if(!m || !m->data) return NULL;
     if(index < 0 || index >= m->rows) return NULL;
 
@@ -342,6 +342,110 @@ int mat_set_row(Matrix *m, int index, const Vector *v){
     }
 
     return 0;
+}
+
+Matrix* get_submatrix(const Matrix* m, int first_r, int last_r, int first_c, int last_c){
+    if(!m || !m->data) return NULL;
+    
+    if(first_r < 0 || first_r >= last_r || last_r > m->rows)
+        return NULL;
+
+    if(first_c < 0 || first_c >= last_c || last_c > m->cols)
+        return NULL; 
+
+    {}int rows = last_r - first_r;
+    int cols = last_c - first_c;
+ 
+    Matrix *result = mat_init(rows, cols);
+    if(!result) return NULL;
+
+    int k = 0;
+    for(int i = first_r; i < last_r; i++){
+        for(int j = first_c; j < last_c; j++){
+            result->data[k] = m->data[i * m->cols + j];
+            k++;
+        }
+    }
+
+    return result;
+}
+
+Matrix* mat_concat_cols(const Matrix *a, const Matrix *b){
+    if(!a || !a->data || !b || !b->data) return NULL;
+    if(a->rows != b->rows) return NULL;
+
+    Matrix *result = mat_init(a->rows, a->cols + b->cols);
+    if(!result) return NULL;
+
+    for(int i = 0; i < result->rows; i++){
+        for(int j = 0; j < a->cols; j++){
+            result->data[i * result->cols + j] =
+                a->data[i * a->cols + j];
+        }
+
+        for(int j = 0; j < b->cols; j++){
+            result->data[i * result->cols + a->cols + j] =
+                b->data[i * b->cols + j];
+        }
+    }
+
+    return result;
+}
+
+Vector* softmax(const Vector *v){
+    if(!v || !v->data) return NULL;
+    
+    float max = v->data[0];
+    for(int i = 1; i < v->size; i++){
+        if(v->data[i] > max) max = v->data[i];
+    }
+
+    Vector *result = vec_copy(v);
+    if(!result) return NULL;
+
+    float sum = 0.0f;
+    for(int i = 0; i < v->size; i++){
+        result->data[i] = expf(result->data[i] - max);
+        sum += result->data[i];
+    }
+
+    for(int i = 0; i < v->size; i++){
+        result->data[i] /= sum;
+    }
+
+    return result;
+}
+
+Matrix* mat_softmax(const Matrix *m){
+    if(!m || !m->data) return NULL;
+    
+    Matrix *result = mat_init(m->rows, m->cols);
+    if(!result) return NULL;
+
+    for(int i = 0; i < m->rows; i++){
+        Vector *v = mat_get_row(m, i);
+        if(!v){
+            mat_free(result);
+            return NULL;
+        }
+
+        Vector *s = softmax(v);
+        vec_free(v);
+        if(!s){
+            mat_free(result);
+            return NULL;
+        }
+
+        if(mat_set_row(result, i, s) != 0){
+            vec_free(s);
+            mat_free(result);
+            return NULL;
+        }
+    
+        vec_free(s);
+    }
+
+    return result;
 }
 
 void print_vec(const Vector *v){

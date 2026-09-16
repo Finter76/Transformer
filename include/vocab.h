@@ -17,7 +17,7 @@ typedef struct{
 void hash_table_init(HashTable*);
 unsigned long hash(const char*);
 
-void vocab_load(HashTable*, const char*);
+int vocab_load(HashTable*, const char*);
 
 void hash_insert(HashTable*, const char*, int);
 

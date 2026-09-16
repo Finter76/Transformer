@@ -47,8 +47,14 @@ Matrix* mat_transpose(const Matrix*);
 int vec_norm(const Vector*, float*);
 int vec_sum(const Vector*, float*);
 
-Vector *mat_get_row(Matrix*, int);
+Vector *mat_get_row(const Matrix*, int);
 int mat_set_row(Matrix*, int, const Vector*);
+
+Matrix* get_submatrix(const Matrix*, int, int, int, int);
+Matrix* mat_concat_cols(const Matrix*, const Matrix*);
+
+Vector* softmax(const Vector*);
+Matrix* mat_softmax(const Matrix*);
 
 void print_vec(const Vector*);
 void print_mat(const Matrix*);

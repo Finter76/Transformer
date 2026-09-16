@@ -30,8 +30,9 @@ void hash_insert(HashTable *table, const char* word, int id){
     strcpy(table->entries[index].word, word);
 }
 
-void vocab_load(HashTable *table, const char *filename){
+int vocab_load(HashTable *table, const char *filename){
     FILE *file = fopen(filename, "r");
+    if(!file) return -1;
 
     char buffer[128];
     int id = 0;
@@ -45,6 +46,7 @@ void vocab_load(HashTable *table, const char *filename){
     }
 
     fclose(file);
+    return 0;
 }
 
 int hash_lookup(HashTable *table, const char *word){
