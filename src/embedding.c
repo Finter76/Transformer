@@ -1,6 +1,6 @@
 #include "embedding.h"
 #include "config.h"
-#include "algebra.h"
+#include <math.h>
 
 Matrix *embed(TokenList *t, Transformer *tr){
     Matrix *X = mat_init(t->words, D_MODEL);
@@ -9,7 +9,7 @@ Matrix *embed(TokenList *t, Transformer *tr){
     for(int i = 0; i < t->words; i++){
         int id = t->tokens[i].id;
 
-        Vector *v = mat_get_row(tr->E, id);
+        Vector *v = mat_get_row(tr->E_encoder, id);
         if(!v){
             mat_free(X);
             return NULL;
@@ -22,7 +22,10 @@ Matrix *embed(TokenList *t, Transformer *tr){
         } 
 
         vec_free(v);
-    } 
+    }
 
-    return X;
+    Matrix *scaled = mat_scalar_mul(X, sqrtf(D_MODEL));
+    mat_free(X);
+
+    return scaled; 
 }

@@ -5,7 +5,7 @@
 #include "algebra.h"
 #include "transformer.h"
 
-Matrix* attention(Matrix*, Transformer*);
-Matrix* masked_attention(Matrix*, Matrix*, Matrix*);
+Matrix* attention(const Matrix*, const EncoderLayer*);
+Matrix* masked_attention(const Matrix*, const DecoderLayer*);
 
 #endif

@@ -19,9 +19,9 @@ unsigned long hash(const char*);
 
 int vocab_load(HashTable*, const char*);
 
-void hash_insert(HashTable*, const char*, int);
+int hash_insert(HashTable*, const char*, int);
 
-int hash_lookup(HashTable*, const char*);
+int hash_lookup(const HashTable*, const char*);
 
 
 

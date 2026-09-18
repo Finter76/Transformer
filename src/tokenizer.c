@@ -1,11 +1,12 @@
 #include "tokenizer.h"
 
-TokenList* tokenize(HashTable *table, char *p){
-    TokenList *result = malloc(sizeof(TokenList));
-    
+TokenList* tokenize(HashTable *table, char *p){    
     if (!p || p[0] == '\0')
-        return result;
+        return NULL;
     
+    TokenList *result = malloc(sizeof(TokenList));
+    if(!result) return NULL;
+
     p[strcspn(p, "\n")] = '\0';
 
     int count = 0;

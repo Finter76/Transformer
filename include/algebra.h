@@ -33,6 +33,8 @@ Matrix* mat_add(const Matrix*, const Matrix*);
 Vector* vec_sub(const Vector*, const Vector*);
 Matrix* mat_sub(const Matrix*, const Matrix*);
 
+Matrix* broadcast_sum(const Matrix*, const Vector*);
+
 int dot_prod(const Vector*, const Vector*, float*);
 Vector* vecmul(const Vector*, const Vector*);
 Vector* vec_scalar_mul(const Vector*, float);
@@ -55,6 +57,9 @@ Matrix* mat_concat_cols(const Matrix*, const Matrix*);
 
 Vector* softmax(const Vector*);
 Matrix* mat_softmax(const Matrix*);
+
+Vector* reLU(const Vector*);
+Matrix* mat_reLU(const Matrix*);
 
 void print_vec(const Vector*);
 void print_mat(const Matrix*);

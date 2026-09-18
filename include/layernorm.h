@@ -4,6 +4,6 @@
 #include "algebra.h"
 #include "transformer.h"
 
-Matrix* layer_norm(Matrix*, Transformer*);
+Matrix* layer_norm(const Matrix*, const Vector*, const Vector*);
 
 #endif

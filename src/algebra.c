@@ -61,6 +61,8 @@ Vector* vec_copy(const Vector *a){
     b->size = a->size;
 
     b->data = calloc(a->size, sizeof(float));
+    if(!b->data) return NULL;
+
     for(int i = 0; i < a->size; i++){
         b->data[i] = a->data[i];
     }
@@ -78,6 +80,8 @@ Matrix* mat_copy(const Matrix *a){
     b->cols = a->cols;
 
     b->data = calloc(a->rows * a->cols, sizeof(float));
+    if(!b->data) return NULL;
+
     for(int i = 0; i < a->rows * a->cols; i++){
         b->data[i] = a->data[i];
     }
@@ -184,6 +188,22 @@ Matrix* mat_sub(const Matrix *a, const Matrix *b){
     }
     
     return c;
+}
+
+Matrix* broadcast_sum(const Matrix *m, const Vector *v){
+    if(!m || !m->data || !v || !v->data) return NULL;
+    if(v->size != m->cols) return NULL;
+
+    Matrix *result = mat_copy(m);
+    if(!result) return NULL;
+
+    for(int i = 0; i < result->rows; i++){
+        for(int j = 0; j < result->cols; j++){
+            result->data[i * result->cols + j] += v->data[j];
+        }
+    }
+
+    return result;
 }
 
 int dot_prod(const Vector* a, const Vector* b, float *result){
@@ -353,7 +373,7 @@ Matrix* get_submatrix(const Matrix* m, int first_r, int last_r, int first_c, int
     if(first_c < 0 || first_c >= last_c || last_c > m->cols)
         return NULL; 
 
-    {}int rows = last_r - first_r;
+    int rows = last_r - first_r;
     int cols = last_c - first_c;
  
     Matrix *result = mat_init(rows, cols);
@@ -443,6 +463,36 @@ Matrix* mat_softmax(const Matrix *m){
         }
     
         vec_free(s);
+    }
+
+    return result;
+}
+
+Vector* reLU(const Vector *v){
+    if(!v || !v->data) return NULL;
+
+    Vector *result = vec_copy(v);
+    if(!result) return NULL;
+
+    for(int i = 0; i < result->size; i++){
+        if(result->data[i] < 0)
+            result->data[i] = 0;
+    }
+
+    return result;
+}
+
+Matrix* mat_reLU(const Matrix *m){
+    if(!m || !m->data) return NULL;
+
+    Matrix *result = mat_copy(m);
+    if(!result) return NULL;
+     
+    for(int i = 0; i < result->rows; i++){
+        for(int j = 0; j < result->cols; j++){
+            if(result->data[i * result->cols + j] < 0)
+                result->data[i * result->cols + j] = 0;
+        }
     }
 
     return result;

@@ -1,9 +1,9 @@
 #ifndef FFN_H_
 #define FFN_H_
 
-#include "config.h"
 #include "algebra.h"
+#include "transformer.h"
 
-Matrix* ffn(Matrix*);
+Matrix* ffn(const Matrix*, const Matrix*, const Vector*, const Matrix*, const Vector*);
 
 #endif

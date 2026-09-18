@@ -1,54 +1,89 @@
-#include "attention.h"
+#include "attention.h" 
 #include "config.h"
 #include <stddef.h>
 #include <math.h>
 
-Matrix* attention_head(Matrix *X, Matrix *Wq, Matrix *Wk, Matrix *Wv){ 
-    if(!X || !Wq || !Wk || !Wv)
+Matrix* attention_head(const Matrix *X, const Matrix *Wq, const Matrix *Wk, const Matrix *Wv){ 
+    if(!X || !X->data || !Wq || !Wq->data || !Wk || !Wk->data || !Wv || !Wv->data)
         return NULL;
 
     float norm = 1.0f / sqrtf(D_HEAD);
     
     Matrix *Q = matmul(X, Wq);
-    if(!Q) return NULL; 
+    if(!Q) goto fatal; 
     Matrix *K = matmul(X, Wk);
-    if(!K) return NULL;
+    if(!K) goto fatal;
     Matrix *V = matmul(X, Wv);
-    if(!V) return NULL;
+    if(!V) goto fatal;
 
     Matrix *KT = mat_transpose(K);
-    if(!KT) return NULL;
+    if(!KT) goto fatal;
 
     Matrix *scores = matmul(Q, KT);
+    if(!scores) goto fatal;
     Matrix *scaled = mat_scalar_mul(scores, norm);
+    if(!scaled) goto fatal;
     Matrix *A = mat_softmax(scaled);
+    if(!A) goto fatal;
     Matrix *H = matmul(A, V);
-    
+    if(!H) goto fatal;   
+ 
     return H;
+
+fatal:
+    mat_free(Q);
+    mat_free(K);
+    mat_free(V);
+    mat_free(KT);
+    mat_free(scores);
+    mat_free(scaled);
+    mat_free(A);
+
+    return NULL;
 }
 
-Matrix* attention(Matrix *X, Transformer* tr){
-    Matrix *H1 = attention_head(X, tr->W1q, tr->W1k, tr->W1v); 
-    if(!H1) return NULL;
+Matrix* attention(const Matrix *X, const EncoderLayer *layer){
+    if(!X || !X->data || !layer) return NULL;
 
-    Matrix *H2 = attention_head(X, tr->W2q, tr->W2k, tr->W2v);
-    if(!H2) return NULL;
+    Matrix *heads[NUM_HEADS] = {0};
 
-    Matrix *H3 = attention_head(X, tr->W3q, tr->W3k, tr->W3v);
-    if(!H3) return NULL;
+    for(int i = 0; i < NUM_HEADS; i++){
+        heads[i] = attention_head(X, layer->Wq[i], layer->Wk[i], layer->Wv[i]);
 
-    Matrix *H4 = attention_head(X, tr->W4q, tr->W4k, tr->W4v);
-    if(!H4) return NULL;
+        if(!heads[i]){
+            for(int j = 0; j < NUM_HEADS; j++)
+                mat_free(heads[j]);
 
-    Matrix *H12 = mat_concat_cols(H1, H2);
-    if(!H12) return NULL;
-    Matrix *H34 = mat_concat_cols(H3, H4);
-    if(!H34) return NULL;
-    Matrix *H = mat_concat_cols(H12, H34);
-    if(!H) return NULL;    
+            return NULL;
+        }
+    }
 
-    Matrix *output = matmul(H, tr->Wo);
-    if(!output) return NULL;
+    /* Concatenate heads */
+    Matrix *H = heads[0];
 
-    return output;    
+    for(int i = 1; i < NUM_HEADS; i++){
+        Matrix *tmp = mat_concat_cols(H, heads[i]);
+
+        if(!tmp){
+            mat_free(H);
+
+            for(int j = i; j < NUM_HEADS; j++)
+                mat_free(heads[j]);
+
+            return NULL;
+        }
+
+        mat_free(H);
+        mat_free(heads[i]);
+
+        H = tmp;
+    }
+
+    /* Final linear projection */
+    Matrix *output = matmul(H, layer->Wo);
+
+    mat_free(H);
+
+    return output;
 }
+
