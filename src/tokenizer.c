@@ -26,7 +26,7 @@ TokenList* tokenize(HashTable *table, char *p){
         while(*b != ' ' && *b != '\0') b++;
     }
 
-    Token *tokens = malloc(count * sizeof(Token));
+    Token *tokens = malloc((count) * sizeof(Token));
 
     int unk_id = hash_lookup(table, "<UNK>");
     
@@ -64,6 +64,20 @@ TokenList* tokenize(HashTable *table, char *p){
     result->tokens = tokens;
 
     return result;
+}
+
+int *token_list_get_ids(const TokenList *list){
+    if(!list || !list->tokens || list->words <= 0)
+        return NULL;
+
+    int *ids = malloc(list->words * sizeof(int));
+    if(!ids)
+        return NULL;
+
+    for(int i = 0; i < list->words; i++)
+        ids[i] = list->tokens[i].id;
+
+    return ids;
 }
 
 void print_tokens(TokenList *tl){

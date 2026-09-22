@@ -21,6 +21,8 @@ typedef struct {
 // Split phrases in words
 TokenList* tokenize(HashTable*, char*);
 
+int *token_list_get_ids(const TokenList*);
+
 void print_tokens(TokenList*);
 void free_tokens(TokenList*);
 

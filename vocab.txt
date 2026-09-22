@@ -1,4 +1,6 @@
 <PAD>
+<START>
+<EOS>
 <UNK>
 a
 abbandonare

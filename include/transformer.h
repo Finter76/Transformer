@@ -22,7 +22,7 @@ typedef struct {
 
     Vector *gamma2;
     Vector *beta2;
-    
+ 
 } EncoderLayer;
 
 typedef struct {
@@ -62,6 +62,7 @@ typedef struct {
     EncoderLayer encoder_layers[ENCODER_LAYERS];
     DecoderLayer decoder_layers[DECODER_LAYERS];
 
+    Matrix *W_out;
 } Transformer;
 
 Transformer *transformer_init();

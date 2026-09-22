@@ -10,6 +10,9 @@ Transformer* transformer_init(void){
     /* Embedding */
     t->E_encoder = mat_init(VOCAB_SIZE, D_MODEL);
     if(!t->E_encoder) goto fail;
+    
+    t->E_decoder = mat_init(VOCAB_SIZE, D_MODEL);
+    if(!t->E_decoder) goto fail;
 
     /* ==================== */
     /* Encoder Layers       */
@@ -115,7 +118,11 @@ Transformer* transformer_init(void){
         layer->beta3  = vec_init(D_MODEL);
 
         if(!layer->gamma3 || !layer->beta3) goto fail;
+
     }
+
+        t->W_out = mat_init(D_MODEL, VOCAB_SIZE);
+        if(!t->W_out) goto fail;
 
     return t;
 
@@ -200,6 +207,9 @@ void transformer_free(Transformer *t){
         vec_free(layer->gamma3);
         vec_free(layer->beta3);
     }
+    
+        /* Output Projection */
+        mat_free(t->W_out);
 
     free(t);
 }

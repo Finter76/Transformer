@@ -5,6 +5,6 @@
 #include "transformer.h"
 #include "algebra.h"
 
-Matrix *embed(TokenList*, Transformer*); 
+Matrix *embed(const int*, int, const Matrix*);
 
 #endif

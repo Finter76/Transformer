@@ -9,7 +9,7 @@ Matrix* encoder_layer(const Matrix *X, const EncoderLayer *layer){
     if(!X || !X->data || !layer) return NULL;
 
     /* Multi-Head Self-Attention */
-    Matrix *attn_output = attention(X, layer);
+    Matrix *attn_output = attention(X, X, X, layer->Wq, layer->Wk, layer->Wv, layer->Wo, 0);
     if(!attn_output) return NULL;
 
     /* Add & Norm */

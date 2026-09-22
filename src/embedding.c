@@ -2,14 +2,14 @@
 #include "config.h"
 #include <math.h>
 
-Matrix *embed(TokenList *t, Transformer *tr){
-    Matrix *X = mat_init(t->words, D_MODEL);
+Matrix *embed(const int *ids, int length, const Matrix *E){
+    Matrix *X = mat_init(length, D_MODEL);
     if(!X) return NULL;
 
-    for(int i = 0; i < t->words; i++){
-        int id = t->tokens[i].id;
+    for(int i = 0; i < length; i++){
+        int id = ids[i];
 
-        Vector *v = mat_get_row(tr->E_encoder, id);
+        Vector *v = mat_get_row(E, id);
         if(!v){
             mat_free(X);
             return NULL;
