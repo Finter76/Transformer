@@ -24,7 +24,7 @@ int main(){
 
     hash_table_init(table_it);
 
-    if((vocab_load(table_it, "vocab_it.txt") != 0)) return -1;
+    if((vocab_load(table_it, "data/vocab_it.txt") != 0)) return -1;
 
     /* Load English vocabulary */ 
     HashTable *table_en = malloc(sizeof(HashTable)); 
@@ -32,7 +32,7 @@ int main(){
 
     hash_table_init(table_en); 
 
-    if(vocab_load(table_en, "vocab_en.txt") != 0) return -1;
+    if(vocab_load(table_en, "data/vocab_en.txt") != 0) return -1;
 
     char phrase[INPUT_BUFFER_SIZE];
     if(!fgets(phrase, INPUT_BUFFER_SIZE, stdin)) return -1;

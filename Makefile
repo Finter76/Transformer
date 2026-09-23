@@ -1,24 +1,38 @@
 CC = gcc
-
 CFLAGS = -Wall -Wextra -std=c11 -Iinclude -D_DEFAULT_SOURCE
 LDFLAGS = -lm
 
-TARGET = build/token
+BUILD_DIR = build
 
-SRC = $(wildcard src/*.c)
-OBJ = $(SRC:src/%.c=build/%.o)
-DEP = $(OBJ:.o=.d)
+COMMON_SRC = $(filter-out src/main.c src/train_main.c, $(wildcard src/*.c))
+COMMON_OBJ = $(COMMON_SRC:src/%.c=$(BUILD_DIR)/%.o)
 
-$(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET) $(LDFLAGS)
+RUN_TARGET   = $(BUILD_DIR)/token
+TRAIN_TARGET = $(BUILD_DIR)/train
 
-build/%.o: src/%.c
+all: $(RUN_TARGET)
+
+$(RUN_TARGET): $(COMMON_OBJ) $(BUILD_DIR)/main.o
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+$(TRAIN_TARGET): $(COMMON_OBJ) $(BUILD_DIR)/train_main.o
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+$(BUILD_DIR)/%.o: src/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 
--include $(DEP)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+-include $(wildcard $(BUILD_DIR)/*.d)
 
 clean:
-	rm -f $(OBJ) $(DEP) $(TARGET)
+	rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.d $(RUN_TARGET) $(TRAIN_TARGET)
 
-run: $(TARGET)
-	./$(TARGET)
+run: $(RUN_TARGET)
+	./$(RUN_TARGET)
+
+train: $(TRAIN_TARGET)
+	./$(TRAIN_TARGET)
+
+.PHONY: all clean run train
