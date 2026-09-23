@@ -2,7 +2,8 @@
 #define CONFIG_H_
 
 // Embedding Matrix: VOCAB_SIZE x D_MODEL
-#define VOCAB_SIZE 1162
+#define VOCAB_SIZE_IT 1004
+#define VOCAB_SIZE_EN 1003
 #define D_MODEL 64 
 #define NUM_HEADS 4
 #define D_HEAD (D_MODEL/NUM_HEADS)
@@ -12,6 +13,7 @@
 #define DECODER_LAYERS 2
 
 #define MAX_LEN 32
+#define INPUT_BUFFER_SIZE 256
 
 #define HASH_TABLE_SIZE 2048
 

@@ -1,4 +1,4 @@
-#include "attention.h" 
+#include "attention.h"
 #include "config.h"
 #include <stddef.h>
 #include <math.h>
@@ -38,6 +38,14 @@ Matrix* attention_head(const Matrix *Q_input, const Matrix *K_input, const Matri
     if(!A) goto fatal;
     Matrix *H = matmul(A, V);
     if(!H) goto fatal;   
+
+    mat_free(Q); 
+    mat_free(K); 
+    mat_free(V); 
+    mat_free(KT);
+    mat_free(scores); 
+    mat_free(scaled); 
+    mat_free(A);
  
     return H;
 
@@ -75,14 +83,20 @@ Matrix* attention(const Matrix *Q_input, const Matrix *K_input, const Matrix *V_
 
     /* Concatenate heads */
     Matrix *H = heads[0];
+    heads[0] = NULL;    
 
     for(int i = 1; i < NUM_HEADS; i++){
         Matrix *tmp = mat_concat_cols(H, heads[i]);
 
-        if(!tmp) goto fatal;
+        if(!tmp){
+            mat_free(H);
+            goto fatal;
+        }
 
         mat_free(H);
         mat_free(heads[i]);
+
+        heads[i] = NULL; 
 
         H = tmp;
     }

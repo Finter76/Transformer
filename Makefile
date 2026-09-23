@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -Wall -Wextra -std=c11 -Iinclude
+CFLAGS = -Wall -Wextra -std=c11 -Iinclude -D_DEFAULT_SOURCE
 LDFLAGS = -lm
 
 TARGET = build/token

@@ -15,6 +15,10 @@ typedef struct{
 Vector* vec_init(int);
 Matrix* mat_init(int, int);
 
+void mat_init_xavier(Matrix *m, int fan_in, int fan_out);
+void mat_init_normal(Matrix *m, float mean, float stddev);
+void vec_init_const(Vector *v, float val);
+
 Vector* vec_copy(const Vector *);
 Matrix* mat_copy(const Matrix *);
 

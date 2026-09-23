@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 Vector* vec_init(int size){
     if (size <= 0) return NULL;
@@ -37,6 +38,36 @@ Matrix* mat_init(int rows, int cols){
     return m;
 }
 
+static float rand_uniform(float min, float max){
+    return min + (max - min) * ((float)rand() / (float)RAND_MAX);
+}
+
+static float rand_normal(float mean, float stddev){
+    /* Box-Muller */
+    float u1 = ((float)rand() + 1.0f) / ((float)RAND_MAX + 1.0f);
+    float u2 = ((float)rand() + 1.0f) / ((float)RAND_MAX + 1.0f);
+    float z = sqrtf(-2.0f * logf(u1)) * cosf(2.0f * (float)M_PI * u2);
+    return mean + stddev * z;
+}
+
+void mat_init_xavier(Matrix *m, int fan_in, int fan_out){
+    if(!m || !m->data) return;
+    float limit = sqrtf(6.0f / (fan_in + fan_out));
+    for(int i = 0; i < m->rows * m->cols; i++)
+        m->data[i] = rand_uniform(-limit, limit);
+}
+
+void mat_init_normal(Matrix *m, float mean, float stddev){
+    if(!m || !m->data) return;
+    for(int i = 0; i < m->rows * m->cols; i++)
+        m->data[i] = rand_normal(mean, stddev);
+}
+
+void vec_init_const(Vector *v, float val){
+    if(!v || !v->data) return;
+    for(int i = 0; i < v->size; i++)
+        v->data[i] = val;
+}
 
 void vec_free(Vector* v){
     if(!v || !v->data) return;

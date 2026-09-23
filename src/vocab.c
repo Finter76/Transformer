@@ -5,6 +5,7 @@ void hash_table_init(HashTable *table){
     for (int i = 0; i < HASH_TABLE_SIZE; i++) {
         table->entries[i].word = NULL;
         table->entries[i].id = -1;
+        table->id_to_word[i] = NULL;
     }
 }
 
@@ -18,6 +19,9 @@ unsigned long hash(const char* word){
 }
 
 int hash_insert(HashTable *table, const char* word, int id){
+    if(!table || !word) return -1;
+    if(id < 0 || id >= HASH_TABLE_SIZE) return -1;
+
     unsigned long index = hash(word) % HASH_TABLE_SIZE;
     unsigned long start = index;
 
@@ -31,10 +35,14 @@ int hash_insert(HashTable *table, const char* word, int id){
     table->entries[index].word = malloc(strlen(word) + 1);
     strcpy(table->entries[index].word, word);
 
+    table->id_to_word[id] = table->entries[index].word;
+
     return 0;
 }
 
 int vocab_load(HashTable *table, const char *filename){
+    if(!table || !filename) return -1;
+
     FILE *file = fopen(filename, "r");
     if(!file) return -1;
 
@@ -54,6 +62,7 @@ int vocab_load(HashTable *table, const char *filename){
 }
 
 int hash_lookup(const HashTable *table, const char *word){
+    if(!table || !word) return -1;
     unsigned long index = hash(word) % HASH_TABLE_SIZE;
     unsigned long start = index;
 
@@ -68,4 +77,12 @@ int hash_lookup(const HashTable *table, const char *word){
     }
 
     return -1;
+}
+
+const char *id_lookup(const HashTable *table, int id){
+    if (id < 0 || id >= HASH_TABLE_SIZE) return NULL;
+
+    if(!table) return NULL;
+
+    return table->id_to_word[id];
 }

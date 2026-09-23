@@ -2,17 +2,20 @@
 #include "algebra.h"
 #include "config.h"
 #include <stdlib.h>
+#include <math.h>
 
 Transformer* transformer_init(void){
     Transformer *t = malloc(sizeof(Transformer));
     if(!t) return NULL;
 
     /* Embedding */
-    t->E_encoder = mat_init(VOCAB_SIZE, D_MODEL);
+    t->E_encoder = mat_init(VOCAB_SIZE_IT, D_MODEL);
     if(!t->E_encoder) goto fail;
-    
-    t->E_decoder = mat_init(VOCAB_SIZE, D_MODEL);
+    mat_init_normal(t->E_encoder, 0.0f, 0.02f);   
+ 
+    t->E_decoder = mat_init(VOCAB_SIZE_EN, D_MODEL);
     if(!t->E_decoder) goto fail;
+    mat_init_normal(t->E_decoder, 0.0f, 0.02f);
 
     /* ==================== */
     /* Encoder Layers       */
@@ -27,17 +30,21 @@ Transformer* transformer_init(void){
             layer->Wk[j] = mat_init(D_MODEL, D_HEAD);
             layer->Wv[j] = mat_init(D_MODEL, D_HEAD);
 
-            if(!layer->Wq[j] || !layer->Wk[j] || !layer->Wv[j]) 
-                goto fail;
+            if(!layer->Wq[j] || !layer->Wk[j] || !layer->Wv[j]) goto fail;
+
+            mat_init_xavier(layer->Wq[j], D_MODEL, D_HEAD);
+            mat_init_xavier(layer->Wk[j], D_MODEL, D_HEAD);
+            mat_init_xavier(layer->Wv[j], D_MODEL, D_HEAD);
         }
 
         layer->Wo = mat_init(D_MODEL, D_MODEL);
         if(!layer->Wo) goto fail;
+        mat_init_xavier(layer->Wo, D_MODEL, D_MODEL);
 
         /* First LayerNorm */
         layer->gamma1 = vec_init(D_MODEL);
         layer->beta1  = vec_init(D_MODEL);
-
+        vec_init_const(layer->gamma1, 1.0f);
         if(!layer->gamma1 || !layer->beta1) goto fail;
 
         /* FFN */
@@ -47,14 +54,17 @@ Transformer* transformer_init(void){
         layer->W2 = mat_init(D_FF, D_MODEL);
         layer->b2 = vec_init(D_MODEL);
 
-        if(!layer->W1 || !layer->b1 || !layer->W2 || !layer->b2)
-            goto fail;
+        if(!layer->W1 || !layer->b1 || !layer->W2 || !layer->b2) goto fail;
 
+        mat_init_normal(layer->W1, 0.0f, sqrtf(2.0f / D_MODEL));  
+        mat_init_xavier(layer->W2, D_FF, D_MODEL);
+    
         /* Second LayerNorm */
         layer->gamma2 = vec_init(D_MODEL);
         layer->beta2  = vec_init(D_MODEL);
 
         if(!layer->gamma2 || !layer->beta2) goto fail;
+        vec_init_const(layer->gamma2, 1.0f);
     }
 
     /* ==================== */
@@ -71,18 +81,23 @@ Transformer* transformer_init(void){
             layer->Wk_self[j] = mat_init(D_MODEL, D_HEAD);
             layer->Wv_self[j] = mat_init(D_MODEL, D_HEAD);
 
-            if(!layer->Wq_self[j] || !layer->Wk_self[j] || !layer->Wv_self[j])
-                goto fail;
+            if(!layer->Wq_self[j] || !layer->Wk_self[j] || !layer->Wv_self[j]) goto fail;
+
+            mat_init_xavier(layer->Wq_self[j], D_MODEL, D_HEAD);
+            mat_init_xavier(layer->Wk_self[j], D_MODEL, D_HEAD);
+            mat_init_xavier(layer->Wv_self[j], D_MODEL, D_HEAD);
         }
 
         layer->Wo_self = mat_init(D_MODEL, D_MODEL);
         if(!layer->Wo_self) goto fail;
+        mat_init_xavier(layer->Wo_self, D_MODEL, D_MODEL);
 
         /* First LayerNorm */
         layer->gamma1 = vec_init(D_MODEL);
         layer->beta1  = vec_init(D_MODEL);
 
         if(!layer->gamma1 || !layer->beta1) goto fail;
+        vec_init_const(layer->gamma1, 1.0f);
 
         /* Cross-Attention */
         for(int j = 0; j < NUM_HEADS; j++){
@@ -90,18 +105,24 @@ Transformer* transformer_init(void){
             layer->Wk_cross[j] = mat_init(D_MODEL, D_HEAD);
             layer->Wv_cross[j] = mat_init(D_MODEL, D_HEAD);
 
-            if(!layer->Wq_cross[j] || !layer->Wk_cross[j] || !layer->Wv_cross[j])
-                goto fail;
+            if(!layer->Wq_cross[j] || !layer->Wk_cross[j] || !layer->Wv_cross[j]) goto fail;
+
+            mat_init_xavier(layer->Wq_cross[j], D_MODEL, D_HEAD);
+            mat_init_xavier(layer->Wk_cross[j], D_MODEL, D_HEAD);
+            mat_init_xavier(layer->Wv_cross[j], D_MODEL, D_HEAD);
         }
 
         layer->Wo_cross = mat_init(D_MODEL, D_MODEL);
         if(!layer->Wo_cross) goto fail;
+        mat_init_xavier(layer->Wo_cross, D_MODEL, D_MODEL);
 
         /* Second LayerNorm */
         layer->gamma2 = vec_init(D_MODEL);
         layer->beta2  = vec_init(D_MODEL);
 
         if(!layer->gamma2 || !layer->beta2) goto fail;
+        
+        vec_init_const(layer->gamma2, 1.0f);
 
         /* FFN */
         layer->W1 = mat_init(D_MODEL, D_FF);
@@ -110,19 +131,23 @@ Transformer* transformer_init(void){
         layer->W2 = mat_init(D_FF, D_MODEL);
         layer->b2 = vec_init(D_MODEL);
 
-        if(!layer->W1 || !layer->b1 || !layer->W2 || !layer->b2)
-            goto fail;
+        if(!layer->W1 || !layer->b1 || !layer->W2 || !layer->b2) goto fail;
 
+        mat_init_normal(layer->W1, 0.0f, sqrtf(2.0f / D_MODEL));
+        mat_init_xavier(layer->W2, D_FF, D_MODEL);
+        
         /* Third LayerNorm */
         layer->gamma3 = vec_init(D_MODEL);
         layer->beta3  = vec_init(D_MODEL);
 
         if(!layer->gamma3 || !layer->beta3) goto fail;
 
+        vec_init_const(layer->gamma3, 1.0f);
     }
 
-        t->W_out = mat_init(D_MODEL, VOCAB_SIZE);
-        if(!t->W_out) goto fail;
+    t->W_out = mat_init(D_MODEL, VOCAB_SIZE_EN);
+    if(!t->W_out) goto fail;
+    mat_init_xavier(t->W_out, D_MODEL, VOCAB_SIZE_EN);
 
     return t;
 
@@ -136,6 +161,7 @@ void transformer_free(Transformer *t){
     if(!t) return;
 
     mat_free(t->E_encoder);
+    mat_free(t->E_decoder);
 
     /* ==================== */
     /* Encoder Layers       */

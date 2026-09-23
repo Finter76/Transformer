@@ -12,6 +12,7 @@ typedef struct{
 
 typedef struct{
     HashNode entries[HASH_TABLE_SIZE];
+    char *id_to_word[HASH_TABLE_SIZE];
 } HashTable;
 
 void hash_table_init(HashTable*);
@@ -23,6 +24,7 @@ int hash_insert(HashTable*, const char*, int);
 
 int hash_lookup(const HashTable*, const char*);
 
+const char* id_lookup(const HashTable*, int);
 
 
 #endif

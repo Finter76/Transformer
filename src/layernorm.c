@@ -13,7 +13,10 @@ Matrix* layer_norm(const Matrix *m, const Vector *gamma, const Vector *beta){
 
     /* mu_i = 1/d * \sum_{j=1}^{d}{x_{ij}}*/
     Vector *mu = vec_init(m->rows);
-    if(!mu) return NULL;
+    if(!mu){
+        mat_free(result);
+        return NULL;
+    }
 
     for(int i = 0; i < m->rows; i++){
         for(int j = 0; j < m->cols; j++){
@@ -24,8 +27,12 @@ Matrix* layer_norm(const Matrix *m, const Vector *gamma, const Vector *beta){
 
     /* sigma_i = 1/d * \sum_{j=1}^{d}{(x_{ij} - \mu_i)^2} */
     Vector *sigma = vec_init(m->rows);
-    if(!sigma) return NULL;
-    
+    if(!sigma){
+        vec_free(mu);
+        mat_free(result);
+        return NULL;
+    }
+
     for(int i = 0; i < m->rows; i++){
         for(int j = 0; j < m->cols; j++){
             float diff = m->data[i * m->cols + j] - mu->data[i];

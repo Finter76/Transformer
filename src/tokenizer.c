@@ -27,6 +27,10 @@ TokenList* tokenize(HashTable *table, char *p){
     }
 
     Token *tokens = malloc((count) * sizeof(Token));
+    if(count > 0 && !tokens){
+        free(result);
+        return NULL;
+    }
 
     int unk_id = hash_lookup(table, "<UNK>");
     
